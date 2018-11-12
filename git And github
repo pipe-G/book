@@ -1,0 +1,32 @@
+git 分布式版本控制系统
+在需要版本控制的文件夹下运行：
+git init
+运行完之后会有一个隐藏的文件.git
+文件编辑完之后，通过命令提交:
+(1)git add filename （可以反复多次使用，添加多个文件）
+(2)git commit -m "需要说明的信息" （一次commit可以提交多个add）
+git log 查看历史记录
+git log --pretty=oneline 查看简化的历史记录
+git reflog 查看命令历史
+HEAD 指向的版本就是当前版本
+到达指定版本需要使用 git reset --hard commit_id
+返回上一个版本需要使用 git reset --hard HEAD^ 
+上上一个 HEAD^ 往上100个 可以简化成 HEAD~100
+git add 其实是存放到git的暂存区
+git commit 一次性把暂存区中的内容放到工作区(分支)
+git status 查看文件状态
+git管理的是修改，而非文件
+git diff会比较未暂存版本与最后add/commit的版本
+git diff HEAD -- filename则会比较未暂存版本与分支中已commit版本的区别
+
+git checkout -- file
+一种是文件自修改后还没有被放到暂存区，现在，撤销修改就回到和版本库一模一样的状态；
+一种是文件已经添加到暂存区后，又作了修改，现在，撤销修改就回到添加到暂存区后的状态。
+
+git reset HEAD <filename>   
+git checkout -- file
+改乱了工作区某个文件的内容，还添加到了暂存区时，想丢弃修改
+
+git rm <filename> 删除一个文件
+
+
