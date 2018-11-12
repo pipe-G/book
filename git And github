@@ -29,5 +29,6 @@ git checkout -- file
 
 git rm <filename> 删除一个文件
 
-从远程仓库克隆
+#从远程仓库克隆
 git clone git@github.com:pipe-G/gitkills.git
+
