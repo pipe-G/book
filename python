@@ -53,3 +53,7 @@ change(names[:])
 *递归
 
 Python 多态，封装，继承
+
+*args, **kwargs  
+args 接受多个参数，剩下的用元组的形式表达出啦
+kwargs 以字典的形式表达出来
