@@ -73,6 +73,8 @@ git branch -D  分支名
 
 从本地推送分支，使用git push -u origin branch-name，
 由于远程库是空的，我们第一次推送master分支时，加上了-u参数，
+git push -f origin branch-name
+-f 强制提交。
 如果推送失败，先用git pull抓取远程的新提交；
 
 在本地创建和远程分支对应的分支，使用git checkout -b branch-name origin/branch-name，本地和远程分支的名称最好一致；
