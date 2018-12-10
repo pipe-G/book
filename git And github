@@ -109,3 +109,17 @@ git config --global alias.st status
 
 每个仓库的Git配置文件都放在.git/config文件中：
 别名就在[alias]后面，要删除别名，直接把对应的行删掉即可
+
+（1）git stash save "save message"  : 执行存储时，添加备注，方便查找，只有git stash 也要可以的，但查找时不方便识别。
+
+（2）git stash list  ：查看stash了哪些存储
+
+（3）git stash show ：显示做了哪些改动
+（4）git stash pop ：命令恢复之前缓存的工作目录，将缓存堆栈中的对应stash删除，并将对应修改应用到当前的工作目录下
+（5）git stash clear ：删除所有缓存的stash
+
+  常规 git stash 的一个限制是它会一下暂存所有的文件。有时，只备份某些文件更为方便，让另外一些与代码库保持一致。一个非常有用的技巧，用来备份部分文件：
+
+（1）add 那些你不想备份的文件（例如： git add file1.js, file2.js）
+（2）调用 git stash –keep-index。只会备份那些没有被add的文件。
+（3）调用 git reset 取消已经add的文件的备份，继续自己的工作。
