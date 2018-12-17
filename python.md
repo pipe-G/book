@@ -1,12 +1,23 @@
-python(https://www.liaoxuefeng.com/wiki/0014316089557264a6b348958f449949df42a6d3a2e542c000)
+#python
+__init__.py 文件的作用是将文件夹变为一个Python模块,Python 中的每个模块的包中，都有__init__.py 文件
+
+[python](https://www.liaoxuefeng.com/wiki/0014316089557264a6b348958f449949df42a6d3a2e542c000)
+
 Python 一种解释的，面向对象的，带有<动态语义>的高级程序设计语言。
+
 python3 有六种内建的序列：
 (1)列表   list
+
 (2)元组   tuple
-(3)字符串  
+
+(3)字符串
+  
 (4)Unicode字符串
+
 (5)buffer对象
+
 (6)range对象（python2中为xrange）
+
 python3唯一内建的映射：
 字典（key，value 键值对）dict
 

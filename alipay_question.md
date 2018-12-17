@@ -35,9 +35,24 @@ https://www.cnblogs.com/Eva-J/articles/7194277.html
 from django.utils.decorators import method_decorator
 
 @method_decorator(函数名称, name='dispatch'（这个是类中所有方法都添加装饰器，也可以写方法名字指定方法）)
+#class
+__init__()和__call__()的区别如下： 
+1. __init__()的作用是初始化某个类的一个实例。 
+2. __call__()的作用是使实例能够像函数一样被调用，同时不影响实例本身的生命周期（__call__()不影响一个实例的构造和析构）。但是__call__()可以用来改变实例的内部成员的值。
+>class X(object):
+    def __init__(self, a, b, range):
+        self.a = a
+        self.b = b
+        self.range = range
+    def __call__(self, a, b):
+        self.a = a
+        self.b = b
+        print('__call__ with （{}, {}）'.format(self.a, self.b))
+>> xInstance = X(1, 2, 3)
+>> xInstance(1,2)
+__call__ with (1, 2)
 
-
-#class Meta 
+#models中class Meta 
 
 1. abstract =True 
   声明模型为抽象类
@@ -51,9 +66,13 @@ from django.utils.decorators import method_decorator
    对象的（复数）名称，如果没有设置Django默认的格式为verbose_name + "s".
 # Vue
 1. mac启动vue需要添加sudo+指令。
-2. 执行启动命令需在项目目录下。
+2. 执行启动命令需在vue项目目录下。
+　npm run dev
 3. 如果报出：This is probably not a problem with npm
 可以使用npm install 或 cnpm install 
+4.安装cnpm下载东西 
+> sudo npm install -g cnpm –registry=https://registry.npm.taobao.org –verbose
+
 #视图View
 from django.views import View
 默认视图接受的HTTP方法的名称列表
@@ -145,6 +164,76 @@ timeout 仅对连接过程有效，与响应体的下载无关
 通过alipay.system.oauth.token接口的使用，注意一个参数 **code**，缺少，会导致授权码无效。sign的签名可以通过代码书写，规则[自行实现签名](https://docs.open.alipay.com/291/106118)
 然后通过requests.get(url, params=**)发送过去，返回之后可以变成json：response.json()
 4、 通过access_token，调用api,得到信息。
+# Alipay 支付
+* 使用接口：alipay.trade.wap.pay
+* 接口含有公共参数和请求参数，
+* 请求参数都放在biz_content
+* 请求参数必选中有一个参数（seller_id）可以不用书写，含有默认值。
+* 先对url进行拼凑然后跳转，再获取信息。
+如果直接使用requests，会报出错误：
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+# 微信
+1. json.loads(json_str) json字符串转换成字典
+ json.dumps(dict) 字典转换成json字符串 
+ json的禁止转义unicode ensure_ascii=False,并转换成utf-8格式
+ 例子：
+ 
+> json.dumps(parms, ensure_ascii=False).encode(encoding='UTF-8'))
 
+2. 微信对url 进行验证，返回验证信息
+转换hashcode，需这样
+str=list[0]+list[1]+list[2]
+sha1 = hashlib.sha1()          sha1.update(str.encode('utf-8'))
+hashcode = sha1.hexdigest()
+3.获取openid，通过post传递。
+（1）需要解决Django 中针对基于类的视图添加 csrf_exempt
+* 在类的 dispatch 方法上使用 @csrf_exempt
+* 在 urls.py 中配置：
 
+> urlpatterns = [url(r'^myview/$', csrf_exempt(views.MyView.as_view()), name='myview'),
+]
 
+(2)数据传递过来，request.POST 获取不到
+使用request.META：
+> request.META.get('QUERY_STRING').split('&')[3].split('=')[1]
+#isinstance() 函数
+ 判断一个对象是否是一个已知的类型
+ isinstance() 与 type() 区别：
+
+type() 不会认为子类是一种父类类型，不考虑继承关系。
+
+isinstance() 会认为子类是一种父类类型，**考虑继承关系。
+**
+如果要判断两个类型是否相同推荐使用 isinstance()。
+>a = 2
+> isinstance (a,int)
+True
+> isinstance (a,str)
+False
+> isinstance (a,(str,int,list))    # 是元组中的一个返回 True
+True
+
+# wechatpy
+[函数网址](https://wechatpy.readthedocs.io/zh_CN/master/install.html)
+1.微信xml信息保存在msg中
+ msg=parse_message(request.body)
+2.
+>* TextReply（文本）
+参数:content(保存到文本信息)
+message(保存信息体)
+reply = TextReply(content='text reply', message=msg)
+或者
+reply = TextReply(message=msg)
+reply.content = 'text reply'
+
+* ImageReply(图像)
+参数:media_id(存放图片Id，可以查找图片)
+message(保存信息体)
+* VoiceReply(语音)
+参数:media_id(存放语音Id，可以查找语音)
+message(保存信息体)
+* VideoReply(视频)
+参数:media_id(存放视频Id，可以查找视频)
+message(保存信息体)
+3. 转换成xml
+xml = reply.render()
