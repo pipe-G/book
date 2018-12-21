@@ -1,12 +1,3 @@
-SQL UNION 操作符
-
-UNION 操作符用于合并两个或多个 SELECT 语句的结果集。
-
-请注意，UNION 内部的 SELECT 语句必须拥有相同数量的列。列也必须拥有相似的数据类型。同时，每条 SELECT 语句中的列的顺序必须相同。
-
-如果允许重复的值，请使用 UNION ALL
-
-UNION ALL 命令和 UNION 命令几乎是等效的，不过 UNION ALL 命令会列出所有的值。
 
 #Postgresql
 tablename 表名
@@ -34,14 +25,23 @@ point 类型坐标
 （1）**插入数据**
 
 表有5列
-
+1.insert into .. values(..)
+--
 	INSERT INTO tablename VALUES ('San Francisco',	46,50,0.25,'1994-11-27');
+
 请注意所有数据类型都使用了相当明了的输入格式。那些不是简单数字值的常量通常必需用单引号（'）包围
 可以使用另一种写法，根据列名进行插入
 
 	INSERT INTO tablename (column_name, city, column_name, column_name)
-    VALUES ('1994-11-29', 'Hayward', 54, 37);
-  
+    VALUES ('1994-11-29', 'Hayward', 54, 37),
+    ('1994-11-29', 'Hayward', 54, 37);
+2. insert into .. select ..
+--	
+ 	insert into cd.facilities
+    SELECT 9, 'Spa', 20, 30, 100000, 800
+    UNION ALL
+    SELECT 10, 'Squash Court 2', 3.5, 17.5, 5000, 80;
+ 
 你还可以使用COPY从文本文件中装载大量数据。比如:
 COPY weather FROM '/home/user/weather.txt';
  
@@ -122,14 +122,41 @@ COPY weather FROM '/home/user/weather.txt';
 (3)**更新数据**
 
 假设你发现所有 11 月 28 日以后的温度读数都低了两度，那么你就可以用下面的方式改正数据：
-	
+1.update .. set..
+--		
 	UPDATE weather
     SET temp_hi = temp_hi - 2,  
     temp_lo = temp_lo - 2
     WHERE date > '1994-11-28';
+
+2.update .. set..(可以加子查询)
+--
+	update cd.facilities facs
+	    set
+	        membercost = (select membercost * 1.1 from cd.facilities where facid = 0),
+	        guestcost = (select guestcost * 1.1 from cd.facilities where facid = 0)
+	    where facs.facid = 1;
+
+3. update .. set .. from         	    
+--
+	update cd.facilities facs
+	    set
+	        membercost = facs2.membercost * 1.1,
+	        guestcost = facs2.guestcost * 1.1
+	    from (select * from cd.facilities where facid = 0) facs2
+	    where facs.facid = 1;
+    
 （4）**删除数据**
-	
+1.delete from ..
+--
 	DELETE FROM weather WHERE city = 'Hayward';
+2. truncate
+--
+	 truncate  cd.bookings;
+	  truncate table cd.bookings;
+	  一样
+**慎用**，速度比较快，但是如果涉及事务，还是需要delete
+[delete和truncation的区别](https://www.cnblogs.com/8765h/archive/2011/11/25/2374167.html)
 
 4.***聚集函数***
 

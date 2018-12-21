@@ -75,11 +75,14 @@ docker image ls -f since=mongo:3.2
 docker image ls --format "{{.ID}}: {{.Repository}}"
 * 删除本地镜像
 docker image rm
+* 重命名镜像
+docker tag IMAGEID(镜像id) REPOSITORY:TAG（仓库：标签）
 镜像摘要
 docker image ls --digests
 * 删除所有仓库名为 redis 的镜像 
 -q 列出ID
 docker image rm $(docker image ls -q redis)
+
 ###使用 Dockerfile 定制镜像
 Dockerfile 是一个文本文件，其内包含了一条条的指令(Instruction)，每一条指令构建一层，因此每一条指令的内容，就是描述该层应当如何构建.
 FROM 和 RUN

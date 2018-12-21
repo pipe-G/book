@@ -130,11 +130,12 @@ timezone.now()
 ##Django数据库操作
 [数据库](https://www.cnblogs.com/yangmv/p/5327477.html)
 [数据库字段设置](https://blog.csdn.net/Great_Zhou/article/details/82560343)
-（1）primary_key=True 主键
-（2）default=None 默认值
-（3）null=True  允许数据库为空，为True时，使用NULL来存储空值，
-（4）blank=True 该字段允许为空
-（5）**class Meta**
+
+1. primary_key=True 主键
+2. default=None 默认值
+3. null=True  允许数据库为空，为True时，使用NULL来存储空值，
+4. blank=True 该字段允许为空
+5. **class Meta**
 *abstract =True 声明模型为抽象类
 此类将不用于创建任何数据库表，如果使用，其子类会把子段添加进去。
 *
@@ -158,7 +159,7 @@ timezone.now()
 *设置外键的是子表*
 
 	teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE, default='')
-	
+[参数](https://blog.csdn.net/kuangshp128/article/details/78946316)
 	
 *related_name
 设置之后等同于 子表名称
@@ -227,6 +228,79 @@ timezone.now()
 	obj = models.UserInfo.objects.get(user='yangmv')
 	obj.pwd = '520'
 	obj.save()
+	
+###数据库迁移	
+ PostgreSQL 11之前，添加具有默认值的列会导致表的完全重写，建议始终使用创建新列 null=True，这样它们将立即添加。
+###执行原始SQL
+1.**使用raw()方法 **
+	
+		Manager.raw（raw_query，params = None，translations = None）
+>执行它并返回 django.db.models.query.RawQuerySet实例。RawQuerySet可以像QuerySet一样迭代,以提供对象实例
+
+例子:
+	
+	class Person(models.Model):
+	    first_name = models.CharField(...)
+	    last_name = models.CharField(...)
+	
+	for p in Person.objects.raw('SELECT * FROM myapp_person'):
+
+注意：如果raw()没有放入语句将会导致错误。如果查询没有结果，返回的数据的长度为零。 
+
+**将查询字段映射到模型字段**
+
+匹配是通过名称完成的，例如:
+
+ (1)
+	
+	Person.objects.raw('''SELECT first AS first_name,
+	last AS last_name,
+	bd AS birth_date,
+	pk AS id,
+	FROM some_other_table''')
+ (2)使用translations参数,将查询中的字段映射到模型字段 raw()
+
+	 name_map = {'first': 'first_name', 'last': 'last_name', 'bd': 'birth_date', 'pk': 'id'}
+	 Person.objects.raw('SELECT * FROM some_other_table', translations=name_map)
+
+**将参数传递给raw()**
+	
+使用params 参数:
+	
+	lname = 'Doe'
+	Person.objects.raw('SELECT * FROM myapp_person WHERE last_name = %s', [lname])
+>params是参数的列表或字典,将%s 在查询字符串中使用占位符作为列表，或者%(key)s 使用字典的占位符（当然，这key将替换为字典键）。这些占位符将替换为参数中的params 参数
+>>注意:SQLite后端不支持字典参数; 使用此后端，必须将参数作为列表传递。
+
+2.**直接执行自定义**
+>该对象django.db.connection表示默认数据库连接。要使用数据库连接，调用connection.cursor()以获取游标对象。然后，调用执行SQL或返回结果行。cursor.execute(sql, [params])cursor.fetchone()cursor.fetchall()
+	 from django.db import connection
+	
+	def my_custom_sql(self):
+	    with connection.cursor() as cursor:
+	        cursor.execute("UPDATE bar SET foo = 1 WHERE baz = %s", [self.baz])
+	        cursor.execute("SELECT foo FROM bar WHERE baz = %s", [self.baz])
+	        row = cursor.fetchone()
+	
+	    return row
+	    
+请注意，如果要在查询中包含百分号，则必须在传递参数的情况下将它们加倍
+
+	cursor.execute("SELECT foo FROM bar WHERE baz = '30%%' AND id = %s", [self.id])
+
+**连接和游标**
+
+	with connection.cursor() as c:
+	    c.execute(...)
+相当于
+
+		c = connection.cursor()
+	try:
+	    c.execute(...)
+	finally:
+	    c.close()
+
+	
 ##Django-log
 Loggin一般由四部分组成：
 
@@ -331,3 +405,70 @@ atomic被用作 上下文管理器:
 >违反完整性约束导致了数据库错误， 你仍可以进行add_children()的操作, 并且create _ parent()的变化仍然存在。注意，当 handle_exception()被触发时，在generate _ relationships()上的尝试操作已经被安全回滚，所以若有必要，这个异常的句柄也能够操作数据库。
 
 
+##django-cache
+[缓存](http://djangobook.py3k.cn/2.0/chapter15/)
+
+在实际开发中，有时需要用到`cache`（比如读取有次数限制的接口）。这里选用`django`推荐的`cache`工具--`memcached`。现总结使用方法如下：
+
+### 1.环境配置
+1. 服务器安装`memcached`（搭建`memcached`环境）。
+	* 服务器本地安装`memcached`（不推荐）。[官方网站](https://memcached.org/)，[实用教程](http://www.runoob.com/memcached/memcached-install.html)。
+	* docker环境启动`memcached`，同时暴露端口（推荐）。[memcached docker](https://docs.docker.com/samples/library/memcached/)。
+		* 启动命令： docker run -p 11212:11211 --name my-memcache -d memcached memcached -m 64
+	docker start 容器id 
+3. Python-Memcached安装包（驱动程序）。
+	* `pip install python-memcached`
+
+### 2.django配置memcached
+首先放官方链接：[django缓存框架](https://docs.djangoproject.com/en/2.0/topics/cache/#the-per-site-cache) 。 
+在setting文件中进行以下基本配置（示例）：
+
+	CACHES = {
+	    'default': {
+	        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+	        'LOCATION': '192.168.1.220:11212',
+	        'TIMEOUT': 60 * 60 * 24,
+	    }
+	}
+
+* 其中`BACKEND`即为`memcached`的驱动方式，它的值与第一步的`pip install python-memcached`对应。`memcached`还有其他的驱动方式，不同的驱动方式需要安装的Python包是不一样的，这一点需要注意。其他的驱动方式可参考官网，此处不述。
+* `LOCATION`为`memcached`的地址，示例中的配置方式为IP加端口的方式，当然还有其他的方式，可参考官网，此处不述。
+* 以上两个参数为最基本的必须有的参数，还有其他参数可供配置，如`TIMEOUT`等，可参考官网。（注意，`TIMEOUT`的单位为秒，且值不能设置为0，0的意义是不缓存）
+
+### 3.程序中用法
+（1）低层次缓存API：
+
+	from django.core.cache import cache
+
+    def GetCache(param):
+        key = ('###' + param)  # 可以对key进行自定义，如这里，就加了 ### 作为前缀
+        value = cache.get(key)
+        if value:  # 判断Cache_value是否已存在 
+            return value  # 存在则直接返回
+        else: 
+            cache.set(key, '^_^', 60 * 60 * 24) # 不存在则存储
+            return cache.get(value)
+ 
+ * 这个方法展示了cache的基本逻辑，先从cache中获取，若没有，则设置其值。
+ * django通过配置，可以从`from django.core.cache import cache`中直接获取cache对象，通过操作对象来存储键值对，或获取值。
+ * 存储方法：`cache.set(Cache_key, '^_^', 60 * 60 * 24)`，三个参数，第一个参数为存储的键，第二个参数为存储的值（禁止存储为None或者不存储，因为这样做的话，没有办法判定之前是否查询过key，建议存一个不可能的值，如 `^_^`），第三个参数为过期时间（单位为秒），若不指定则为`setting`中`TIMEOUT`的值。
+ * 获取方法：`value = cache.get(key)`，通过键获取值，若没有这个键，则返回None，与Python的风格一样。
+
+（2）视图级缓存
+
+	from django.views.decorators.cache import cache_page
+	
+	def my_view(request):
+	    # ...
+	
+	my_view = cache_page(my_view, 60 * 15)
+
+（3）在 URLconf 中指定视图缓存
+
+	from django.views.decorators.cache import cache_page
+	
+	urlpatterns = ('',
+	    (r'^foo/(\d{1,2})/$', cache_page(my_view, 60 * 15)),
+	)
+
+>cache_page 只接受一个参数： 以秒计的缓存超时时间。 在前例中， “my_view()” 视图的结果将被缓存 15 分钟。 （注意： 为了提高可读性，该参数被书写为 60 * 15 。 60 * 15 将被计算为 900 ，也就是说15 分钟乘以每分钟 60 秒。）
