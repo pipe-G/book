@@ -1,4 +1,40 @@
 #SQL
+>SQL(Structure Query Language)语言是数据库的核心语言。
+
+>SQL语言共分为四大类：数据定义语言DDL，数据操纵语言DML，数据查询语言DQL，数据控制语言DCL。
+
+>1. 数据定义语言DDL
+数据定义语言DDL用来创建数据库中的各种对象-----表、视图、索引、同义词、聚簇等如：
+CREATE TABLE/VIEW/INDEX/SYN/CLUSTER
+DDL操作是隐性提交的！不能rollback 
+
+>2 .数据操纵语言DML
+数据操纵语言DML主要有三种形式：
+>>1) 插入：INSERT
+
+>>2) 更新：UPDATE
+
+>>3) 删除：DELETE
+
+>3. 数据查询语言DQL
+数据查询语言DQL基本结构是由SELECT子句，FROM子句，WHERE子句组成的查询块：
+
+>>SELECT <字段名表>
+
+>>FROM <表或视图名>
+
+>>WHERE <查询条件>
+
+>4. 数据控制语言DCL
+数据控制语言DCL用来授予或回收访问数据库的某种特权，并控制数据库操纵事务发生的时间及效果，对数据库实行监视等。如：
+
+>>1) GRANT：授权。
+
+>>2) ROLLBACK [WORK] TO [SAVEPOINT]：回退到某一点。
+回滚---ROLLBACK
+回滚命令使数据库状态回到上次最后提交的状态。其格式为：
+
+
 
 ####in,exists
 	
@@ -522,3 +558,185 @@ re|
 ---------+
 12345|
 	
+## Oracle
+
+####定时任务
+
+一.创建一个存储过程
+ 	
+ 	create or replace procedure NAME as
+	begin
+	  update t_daycut_ctrl t3 set t3.prev_settle_date=TO_DATE(to_char(sysdate,'YYYY-MM-DD'),'YYYY-MM-DD');commit;
+	end;
+二.创建一个job
+	
+	declare job_name number;
+	begin
+	  dbms_job.submit(job_name,
+	  'NAME;',
+	  sysdate,'多久执行一次'); 
+	  end;
+三.运行job
+>创建好的Job默认是开启的，所以没有必要启动，实在想启动的话，先关闭，再启动
+
+--
+
+
+先查询Job号：
+
+	SELECT * FROM dba_Jobs a WHERE a.WHAT = 'NAME;';
+
+1：停止Job
+
+	begin
+	  dbms_job.broken(249, true);
+	  commit;
+	end;
+
+其中 249 为查询出来的Job号
+
+2：启动Job
+
+	begin
+	  dbms_job.run(249);
+	  commit;
+	end;
+
+
+如果想删除Job
+
+	begin
+	  dbms_job.remove(247);
+	  commit; 
+	end;
+	
+>或者省略第一步：
+		
+	declare job_name number;
+	begin
+	  dbms_job.submit(job_name,
+	  'update t_daycut_ctrl t3 set t3.prev_settle_date=TO_DATE(to_char(sysdate,'YYYY-MM-DD'),'YYYY-MM-DD');',
+	  sysdate,'多久执行一次'); 
+	  end;
+
+四、补充
+	
+	SELECT * FROM dba_Jobs a WHERE a.WHAT = 'PROC_DAYCUT_CTRL_UPDATE;';
+
+查询出来字段解释：
+
+dba_jobs中几个比较重要的字段
+
+job: 指的是job的id号。比如上面的 41
+
+failures：job执行的时候失败次数，如果超过了15次，那么broken列将被标为Y，以后就不会运行该job了
+
+broken：默认为N，如果为Y，意味着不再执行该job！
+
+interval：执行job的间隔时间。
+
+what：该job的实际工作。
+
+其中：
+
+描述 INTERVAL参数值
+
+1:每分钟执行
+
+	Interval => TRUNC(sysdate,'mi') + 1/ (24*60)
+
+或
+
+	Interval => sysdate+1/1440
+
+2:每天定时执行
+
+例如：每天的凌晨1点执行
+
+	Interval => TRUNC(sysdate) + 1 +1/ (24)
+
+3:每周定时执行
+
+例如：每周一凌晨1点执行
+
+	Interval => TRUNC(next_day(sysdate,'星期一'))+1/24
+
+4:每月定时执行
+
+例如：每月1日凌晨1点执行
+	
+	Interval =>TRUNC(LAST_DAY(SYSDATE))+1+1/24
+
+5:每季度定时执行
+
+例如每季度的第一天凌晨1点执行
+
+	Interval => TRUNC(ADD_MONTHS(SYSDATE,3),'Q') + 1/24
+
+6:每半年定时执行
+
+例如：每年7月1日和1月1日凌晨1点
+
+	Interval => ADD_MONTHS(trunc(sysdate,'yyyy'),6)+1/24
+
+7:每年定时执行
+
+例如：每年1月1日凌晨1点执行
+
+	Interval =>ADD_MONTHS(trunc(sysdate,'yyyy'),12)+1/24
+
+
+####Oracle trunc
+
+>trunc:TRUNC函数为指定元素而截去的日期值。
+
+	1.select trunc(sysdate) from dual  --2011-3-18  今天的日期为2011-3-18
+	2.select trunc(sysdate, 'mm')   from   dual  --2011-3-1    返回当月第一天.
+	3.select trunc(sysdate,'yy') from dual  --2011-1-1       返回当年第一天
+	4.select trunc(sysdate,'dd') from dual  --2011-3-18    返回当前年月日
+	5.select trunc(sysdate,'yyyy') from dual  --2011-1-1   返回当年第一天
+	6.select trunc(sysdate,'d') from dual  --2011-3-13 (星期天)返回当前星期的第一天
+	7.select trunc(sysdate, 'hh') from dual   --2011-3-18 14:00:00   当前时间为14:41   
+	8.select trunc(sysdate, 'mi') from dual  --2011-3-18 14:41:00   TRUNC()函数没有秒的精确
+
+####Oracle REGEXP_INSTR
+
+>函数让你搜索一个正则表达式模式字符串。函数使用输入字符集定义的字符进行字符串的计算。
+它返回一个整数，指示开始或结束匹配的子位置.
+[参考](https://blog.csdn.net/itmyhome1990/article/details/50379729)
+
+该|模式用于像一个”或”指定多个替代方案
+
+例子：
+
+	SELECT REGEXP_INSTR ('Itmyhome', 'a|i|o|e|u')
+	FROM dual;
+
+####Oracle decode
+####Oracle substr
+####Oracle nvl
+####Oracle instr
+####Oracle  ceil
+####Oracle  floor
+####Oracle  删除字符
+#####Trim
+
+>Trim 函数具有删除任意指定字符的功能，而去除字符串首尾空格则是trim函数被使用频率最高的一种。语法Trim ( string ) ，参数string：string类型，指定要删除首部和尾部空格的字符串返回值String
+
+例子:
+ 	
+ 	select trim(leading from '   11  ') aa from dual;
+#####Replace
+>replace 函数用第三个表达式替换第一个字符串表达式中出现的所有第二个给定字符串表达式
+	
+[参考](https://blog.csdn.net/netswing/article/details/6743556)
+
+例子：
+	
+	 select replace('   aa  kk  ',' ','') abcd from dual;
+	 
+####Oracle 循环
+####Oracle 游标
+####Oracle （+）
+####Oracle if
+####ORacle EXECUTE IMMEDIATE
