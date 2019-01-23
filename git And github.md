@@ -58,7 +58,7 @@ git stash 内容隐藏
 git stash list 查看隐藏的内容
 一是用git stash apply恢复，但是恢复后，stash内容并不删除，你需要用git stash drop来删除；
 
-另一种方式是用git stash pop，恢复的同时把stash内容也删了：
+另一种方式是用--，恢复的同时把stash内容也删了：
 
 恢复指定的stash，通过git stash list查看
 git stash apply stash@{0}
@@ -123,3 +123,15 @@ git config --global alias.st status
 （1）add 那些你不想备份的文件（例如： git add file1.js, file2.js）
 （2）调用 git stash –keep-index。只会备份那些没有被add的文件。
 （3）调用 git reset 取消已经add的文件的备份，继续自己的工作。
+
+
+
+###git 多人开发
+ 1.git reset --soft     （回到冲突点）
+ 2.git add .
+ 3.git stash
+ 4.git  status
+ 5.git pull origin dev
+ 6.git stash pop
+ 7.git add .
+ 8.git commit -m ''

@@ -713,19 +713,131 @@ what：该job的实际工作。
 	FROM dual;
 
 ####Oracle decode
+>decode(条件,值1,返回值1,值2,返回值2,...值n,返回值n,缺省值)
+decode(条件,值1,返回值1,值2,返回值2,...值n,返回值n,缺省值)
+
+	该函数的含义如下：
+	IF 条件=值1 THEN
+	　　　　RETURN(翻译值1)
+	ELSIF 条件=值2 THEN
+	　　　　RETURN(翻译值2)
+	　　　　......
+	ELSIF 条件=值n THEN
+	　　　　RETURN(翻译值n)
+	ELSE
+	　　　　RETURN(缺省值)
+	END IF
+>decode(字段或字段的运算，值1，值2，值3）
+ 这个函数运行的结果是，当字段或字段的运算的值等于值1时，该函数返回值2，否则返回值3
+ 当然值1，值2，值3也可以是表达式，这个函数使得某些sql语句简单了许多
+
+
 ####Oracle substr
+
+>substr(字符串,截取开始位置,截取长度) //返回截取的字
+
+	substr('Hello World',0,1) //返回结果为 'H'  *从字符串第一个字符开始截取长度为1的字符串
+	
+	substr('Hello World',1,1) //返回结果为 'H'  *0和1都是表示截取的开始位置为第一个字符
+	
+	substr('Hello World',2,4) //返回结果为 'ello'
+	
+	substr('Hello World',-3,3)//返回结果为 'rld' *负数(-i)表示截取的开始位置为字符串右端向左数第i个字符
+
 ####Oracle nvl
+	NVL(eExpression1, eExpression2)
+	eExpression1, eExpression2
+
+>如果 eExpression1 的计算结果为 null 值，则 NVL( ) 返回 eExpression2。如果 eExpression1 的计算结果不是 null 值，则返回 eExpression1。eExpression1 和 eExpression2 可以是任意一种数据类型。如果 eExpression1 与 eExpression2 的结果皆为 null 值，则 NVL( ) 返回NULL.。
+
 ####Oracle instr
-####Oracle  ceil
-####Oracle  floor
+	instr(String,str[,start_position[,times_appearence]])
+>String:字符;
+
+>str：目标字符;
+
+>start_position:查找的起始位置，默认是1，表示从第一个字符开始查找。
+
+>times_appearence：查找第几次出现的str，默认是1，表示查找的是第一次出现的str。
+
+>中括号表示：括号中的内容可有可无；
+
+>中括号中的中括号表示：必须先有外面中括号的参数，然后才会可以设置内中括号的参数。
+	
+	select instr('abc','a') from dual;    -- 返回 1 
+	select instr('abc','bc') from dual; -- 返回 2
+	select instr('abc abc','a',1,2) from dual; -- 返回 5
+	select instr('abc','bc',-1,1) from dual; -- 返回 2
+	select instr('abc','d') from dual; -- 返回 0
+	
+####Oracle  ceil 、floor
+>ceil(n) 取大于等于数值n的最小整数；
+
+>floor(n)取小于等于数值n的最大整数
+
+	SQL> select ceil(9.5) from dual;
+	 
+	 CEIL(9.5)
+	----------
+	        10
+	 
+	SQL> select floor(9.5) from dual;
+	 
+	FLOOR(9.5)
+	----------
+	         9
+
 ####Oracle  删除字符
+##### TRANSLATE
+>	语法：TRANSLATE(char, from, to)
+>用法：返回将出现在from中的每个字符替换为to中的相应字符以后的字符串。
+            若from比to字符串长，那么在from中比to中多出的字符将会被删除。
+            三个参数中有一个是空，返回值也将是空值。
+            
+	　　SELECT TRANSLATE('abcdefghij','abcdef','123456') FROM dual;　　--返回 123456ghij
+	　　SELECT TRANSLATE('abcdefghij','abcdefghij','123456') FROM dual;　　--返回 123456
+	　　SELECT TRANSLATE('00abcf00','abc','123') newstr FROM dual;　　 --返回 00123f00
+	　　SELECT TRANSLATE('abcbbaadef','ba','#@') FROM dual　--（b将被＃替代，a将被＠替代）返回 @#c##@@def
+	　　SELECT TRANSLATE('abcbbaadef','bad','#@') FROM dual　--（b将被＃替代，a将被＠替代，d对应的值是空值，将被移走）
+
 #####Trim
 
 >Trim 函数具有删除任意指定字符的功能，而去除字符串首尾空格则是trim函数被使用频率最高的一种。语法Trim ( string ) ，参数string：string类型，指定要删除首部和尾部空格的字符串返回值String
 
+>
+	如果指定LEADING，则Oracle Database将删除任何等于的前导字符trim_character。
+	
+	如果指定TRAILING，则Oracle删除任何等于的尾随字符trim_character。
+	
+	如果您指定BOTH或不指定三者，则Oracle会删除等于的前导和尾随字符trim_character。
+	
+	如果未指定trim_character，则默认值为空格。
+	
+	如果仅指定trim_source，则Oracle将删除前导和尾随空格。
+	
+	该函数返回一个具有datatype的值VARCHAR2。值的最大长度是长度trim_source。
+	
+	如果其中一个trim_source或trim_character为null，则该TRIM函数返回null。
+	
+	双方trim_character并trim_source可以是任何数据类型CHAR，VARCHAR2，NCHAR，NVARCHAR2，CLOB，或NCLOB。返回的字符串是VARCHAR2数据类型，如果trim_source是字符数据类型，则trim_source是LOB，如果是LOB数据类型。返回字符串与字符集相同trim_source。
+
+
+
 例子:
  	
  	select trim(leading from '   11  ') aa from dual;
+ 	
+ 	结果：
+ 	11
+
+ 	select trim(leading 'i' from ' i11  ') aa from dual;
+ 	结果(会有一个空格，首位没有找到’i‘，所以都没有替换):
+ 	 i11
+ 	 
+ 	select trim(leading 'i' from 'i11  ') aa from dual;
+ 	
+ 	结果:
+ 	i11
 #####Replace
 >replace 函数用第三个表达式替换第一个字符串表达式中出现的所有第二个给定字符串表达式
 	
@@ -736,7 +848,222 @@ what：该job的实际工作。
 	 select replace('   aa  kk  ',' ','') abcd from dual;
 	 
 ####Oracle 循环
+1.ORACLE中的GOTO用法
+ 
+	DECLARE
+	  x number;
+	BEGIN
+	  x := 9;
+	  <<repeat_loop>> --循环点
+	  x := x - 1;
+	  DBMS_OUTPUT.PUT_LINE(X);
+	  IF X > 0 THEN
+	    GOTO repeat_loop; --当x的值小于9时,就goto到repeat_loop
+	  END IF;
+	END;
+　　 
+2.ORACLE中的FOR循环用法
+	
+	DECLARE
+	  X number; --声明变量
+	BEGIN
+	  x := 1; --给初值
+	  FOR X IN REVERSE 1 .. 10 LOOP
+	    --reverse由大到小
+	    DBMS_OUTPUT.PUT_LINE('内:x=' || x);
+	  END LOOP;
+	  DBMS_OUTPUT.PUT_LINE('end loop:x=' || X); --x=1
+	END;
+ 
+3.ORACLE中的WHILE循环用法
+ 
+	DECLARE
+	  x number;
+	BEGIN
+	  x := 0;
+	  WHILE x < 9 LOOP
+	    x := x + 1;
+	    DBMS_OUTPUT.PUT_LINE('内:x=' || x);
+	  END LOOP;
+	  DBMS_OUTPUT.PUT_LINE('外:x=' || x);
+	END;
+ 
+
+ 
+4.ORACLE中的LOOP循环用法
+
+	DECLARE
+	  x number;
+	BEGIN
+	  x := 0;
+	  LOOP
+	    x := x + 1;
+	  
+	    EXIT WHEN x > 9;
+	    DBMS_OUTPUT.PUT_LINE('内:x=' || x);
+	  END LOOP;
+	  DBMS_OUTPUT.PUT_LINE('外:x=' || x);
+	END;
+
 ####Oracle 游标
+[参考内容](https://www.cnblogs.com/xiaoliu66007/p/7495753.html)
+
+	隐式游标的属性 返回值类型   意    义   
+	SQL%ROWCOUNT    整型  代表DML语句成功执行的数据行数   
+	SQL%FOUND   布尔型 值为TRUE代表插入、删除、更新或单行查询操作成功   
+	SQL%NOTFOUND    布尔型 与SQL%FOUND属性返回值相反   
+	SQL%ISOPEN  布尔型 DML执行过程中为真，结束后为假  
+
 ####Oracle （+）
+
+>外连接， 也可以使用“(+) ”来表示。 关于使用（+）的一些注意事项：
+
+	1.（+）操作符只能出现在WHERE子句中，并且不能与OUTER JOIN语法同时使用。
+	2.当使用（+）操作符执行外连接时，如果在WHERE子句中包含有多个条件，则必须在所有条件中都包含（+）操作符。
+	3.（+）操作符只适用于列，而不能用在表达式上。
+	4.（+）操作符不能与OR和IN操作符一起使用。
+	5.（+）操作符只能用于实现左外连接和右外连接，而不能用于实现完全外连接。
+
+>示例	
+>>用（+）来实现， 这个+号可以这样来理解： 
+
+>> +表示补充，即哪个表有加号，这个表就是匹配表。
+
+>>如果加号写在右表，左表就是全部显示，所以是左连接。
+	
+	Select * from t_A a,t_B b where a.id=b.id(+);
+>它的结果集是t_A表中的全部数据，再加上t_A表和t_B表匹配后的数据。换句话说,左表(t_A)的记录将会全部表示出来,而右表(t_B)只会显示符合搜索条件的记录。t_B表记录不足的地方均为NULL。
+	
+	Select * from t_A a,t_B b where a.id(+)=b.id;
+>以右表(t_B)为基础的。它的结果集是t_B表所有记录，再加上t_A和t_B匹配后的数据。 t_A表记录不足的地方均为NULL。
+
 ####Oracle if
-####ORacle EXECUTE IMMEDIATE
+
+	一、单个IF
+	1、
+	
+	if a=...  then
+	.........
+	end if;
+	
+	2、
+	
+	if a=... then
+	......
+	else
+	....
+	end if;
+	
+	二、多个IF
+	
+	if a=..  then
+	......
+	elsif a=..  then
+	....
+	end if;     
+	这里中间是“ELSIF”，而不是ELSE IF 。这里需要特别注意
+
+####Oracle EXECUTE IMMEDIATE
+[参考内容1](https://www.cnblogs.com/zj0208/p/6088097.html)
+
+[参考内容2](https://www.cnblogs.com/xwb583312435/p/9056263.html)
+	
+	create or replace procedure proc_test(
+	--参数区域
+	)
+	is 
+	--变量区域
+	    --sql脚本
+	    v_sql varchar2(2000) :='';
+	    --记录学生数量
+	    v_num number;
+	begin
+	--执行区域
+	
+	    -- execute immediate用法1：立刻执行sql语句
+	    v_sql := 'create or replace view myview as select id,name from student';
+	    execute immediate v_sql;
+	    
+	    --- execute immediate用法2：立刻执行sql语句，并赋值给某个变量
+	    v_sql := 'select count(1) from student';
+	    execute immediate v_sql into v_num;
+	    
+	    -- execute immediate用法3：带参数的sql
+	    v_sql:='select * from student t where t.name=:1 and t.age=:2'; 
+	    execute immediate v_sql using 'ZhangSan',23;
+	    
+	end proc_test;
+
+####Oracle REGEXP_SUBSTR
+>这个函数的作用是正则分隔字符串，用法为
+
+	function REGEXP_SUBSTR(String, pattern, position, occurrence, modifier)
+
+ 
+>String：操作的字符串；
+
+>pattern：正则表达式匹配规则，匹配到则返回；
+
+>position：开始匹配的位置，默认当然是1；
+
+>occurrence：标识第几个匹配组，默认为1
+
+>modifier：模式（‘i‘不区分大小写进行检索，‘c‘区分大小写进行检索。默认为‘c‘）
+
+1、查询使用正则分割后的第一个值，也就是17
+
+	SELECT REGEXP_SUBSTR('17,20,23','[^,]+',1,1,'i') AS STR FROM DUAL;
+	
+	结果：17
+
+2、查询使用正则分割后的最后一个值，也就是23
+
+
+	SELECT REGEXP_SUBSTR('17,20,23','[^,]+',1,3,'i') AS STR FROM DUAL;  
+	
+	结果:  23
+	
+
+
+### Oracle 判断表是否存在
+
+	declare num   number;
+	   begin
+	   --判断所有的表中是否已经存在这个表
+	          select count(1) into num from all_tables where TABLE_NAME = upper('sjtp_jsz_num');
+	          --and OWNER=upper('username');
+	          if   num=1   then
+	          --如果存在，则执行drop table
+	               execute immediate 'drop table sjtp_jsz_num';
+	          end   if;
+	          --新建table，实现全表更新
+	          execute immediate 'create table sjtp_jsz_num as select * from sjtp_wf_num';
+	   end;
+	   
+### Oracle 日期
+[参考](https://www.cnblogs.com/linximf/archive/2011/11/21/2257036.htmlf)
+
+### Oralce Merge
+
+[参考文档](http://www.cnblogs.com/highriver/archive/2011/08/02/2125043.html)
+
+**Merge使用场景:**
+ 	
+ 	使用一条语句从一个或者多个数据源中完成对表的更新和插入数据
+ 
+>我们有一个任务，有一个表T，有两个字段a,b，我们想在表T中做Insert/Update,如果存在，则更新T中b的值，如果不存在，则插入一条记录。在Microsoft的SQL语法中，很简单的一句判断就可以了，SQL Server中的语法如下：
+
+	if exists(select 1 from T where T.a='1001' ) 
+	update T set T.b=2 Where T.a='1001' else 
+	insert into T(a,b) values('1001',2);
+
+以上语句表明当T表中如果存在a='1001' 的记录的话，就把b的值设为2，否则就Insert一条a='100'，b=2的记录到T中。
+
+	MERGE INTO T T1
+	USING (SELECT a,b FROM T WHERE t.a='1001') T2
+	ON ( T1.a=T2.a)
+	WHEN MATCHED THEN
+	  UPDATE SET T1.b = 2
+	WHEN NOT MATCHED THEN 
+	  INSERT (a,b) VALUES('1001',2);
+
