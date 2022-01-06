@@ -1,4 +1,5 @@
 ```
+
 1. One Dark theme 使用的主题
 2. Translation 翻译中英词语
 3. CodeGlance  代码缩略图
@@ -9,4 +10,6 @@
       集成mybatis generator gui界面
       根据数据库注解，生成swagger model注解
 5. Mybatis-log-plugin 转换mybatis log日志  为Sql 语句
+     Mybatis-log-plugin 收费（暂不使用）
+
 ```
