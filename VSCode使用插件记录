@@ -1,3 +1,5 @@
  1. Chinese  适用于 VS Code 的中文（简体）语言包
  2. Vetur  vue显示配置
  3. ESLint javascript代码检测工具。
+ 4. GitLens 源代码管理 (https://blog.l0v0.com/posts/a91a4c58.html)
+ 5. Git History  查看文件修改记录 (https://blog.csdn.net/oYuLinZuo/article/details/103435098)
