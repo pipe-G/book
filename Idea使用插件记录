@@ -18,4 +18,5 @@
        （3）支持同时生成生成多张表的代码。每张表有独立的配置信息。完全的个性化定义，规则由你设置。
        （4）该版本用于兼容MybatisCodeHelper插件，方便MybatisCodeHelper插件做代码补全检测等。
         （https://juejin.cn/post/6969485096713715719#heading-9）
+8.gittoolbox 显示git信息
 ```
