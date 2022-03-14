@@ -5,3 +5,15 @@
  5. Git History  查看文件修改记录 (https://blog.csdn.net/oYuLinZuo/article/details/103435098)
  6. Vue 3 Snippets  包含了所有的 Vue.js 2 和 Vue.js 3 的 api 对应的代码片段
  7. Bookmarks  添加书签，快速跳转
+ 8. Git Graph 通过这个扩展，可以清楚地看见当前分支的commit记录和变化，可以通过按钮的方式轻易地创建、切换分支、cherry pick、merge等操作
+ ------------------------------------------python-----------------------------------------
+ 1.Python extension for Visual Studio Code 提供了代码分析，高亮，规范化等很多基本功能
+ 2.LiveCode 不需要执行Python脚本，该插件会实时展示你的每一个变量值，且能够识别print()并自动打印
+ 3.Python Preview 够实时可视化你的代码结果 能为VSCode切换各种主题皮肤
+ 4. Better Comments  让你能更好地编写注释的工具，它能根据关键词用不同的颜色高亮代码片段。支持以下类型的高亮：
+               感叹号 “!” 代码警告。
+               问号“?”代表存留疑问。
+               TODO 代码未来将要进行的操作。
+               @param 参数
+               此外，它还支持在设置中自定义需要高亮句子的首部关键词。
+5. Python Indent 自动缩进
